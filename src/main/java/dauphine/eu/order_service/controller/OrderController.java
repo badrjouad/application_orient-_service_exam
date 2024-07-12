@@ -6,6 +6,8 @@ import dauphine.eu.order_service.model.Order;
 import dauphine.eu.order_service.model.Payment;
 import dauphine.eu.order_service.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,16 +17,15 @@ import java.util.List;
 public class OrderController {
     @Autowired
     private OrderRepository orderRepository;
+
     @Autowired
     private PaymentClient paymentClient;
 
-
     @PostMapping
-    public Order placeOrder(@RequestBody Order order) {
+    public ResponseEntity<Order> placeOrder(@RequestBody Order order) {
         order.setOrderStatus("PENDING");
         Order savedOrder = orderRepository.save(order);
 
-        // Process payment using PaymentClient
         Payment payment = new Payment();
         payment.setOrderId(savedOrder.getId());
         payment.setAmount(savedOrder.getTotalAmount());
@@ -36,16 +37,34 @@ public class OrderController {
             savedOrder.setOrderStatus("FAILED");
         }
 
-        return orderRepository.save(savedOrder);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderRepository.save(savedOrder));
     }
 
-    @GetMapping("/{id}")
-    public Order getOrderById(@PathVariable Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Commande non trouvé"));
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<Order> cancelOrder(@PathVariable Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Commande non trouvée"));
+        if ("PENDING".equals(order.getOrderStatus())) {
+            order.setOrderStatus("CANCELLED");
+            paymentClient.cancelPayment(order.getId());
+            return ResponseEntity.ok(orderRepository.save(order));
+        } else {
+            throw new RuntimeException("Seules les commandes en attente peuvent être annulées");
+        }
     }
 
-    @GetMapping("/customer/{customerId}")
-    public List<Order> getOrdersByCustomerId(@PathVariable Long customerId) {
-        return orderRepository.findByCustomerId(customerId);
+    @PutMapping("/updateStatus/{id}")
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long id, @RequestBody String status) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Commande non trouvée"));
+        order.setOrderStatus(status);
+        return ResponseEntity.ok(orderRepository.save(order));
+    }
+
+    @GetMapping("/history/{customerId}")
+    public ResponseEntity<List<Order>> getOrderHistory(@PathVariable Long customerId) {
+        List<Order> orders = orderRepository.findByCustomerId(customerId);
+        return ResponseEntity.ok(orders);
     }
 }
+
