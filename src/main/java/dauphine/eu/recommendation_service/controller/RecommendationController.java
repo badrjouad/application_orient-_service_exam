@@ -16,8 +16,8 @@ public class RecommendationController {
     private RecommendationRepository recommendationRepository;
 
     @GetMapping
-    public List<Recommendation> getTopRecommendations() {
-        return recommendationRepository.findTop10ByOrderByTimesRecommendedDesc();
+    public List<Recommendation> getTopRecommendations(String category) {
+        return recommendationRepository.findByCategoryOrderByTimesRecommendedDesc(category);
     }
 }
 
