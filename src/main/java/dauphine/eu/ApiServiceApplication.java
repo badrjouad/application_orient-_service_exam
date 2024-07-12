@@ -1,4 +1,4 @@
-package dauphine.eu.apiservice;
+package dauphine.eu;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,13 +1,12 @@
-package dauphine.eu.apiservice.mapper;
+package dauphine.eu.mapper;
 
 
-import dauphine.eu.apiservice.dto.ProductDTO;
-import dauphine.eu.apiservice.model.Product;
+import dauphine.eu.dto.ProductDTO;
+import dauphine.eu.entity.Product;
 import fr.xebia.extras.selma.IgnoreMissing;
 import fr.xebia.extras.selma.IoC;
 import fr.xebia.extras.selma.Mapper;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Mapper(withIoC = IoC.SPRING, withIgnoreMissing = IgnoreMissing.ALL, withIgnoreNullValue = true)
