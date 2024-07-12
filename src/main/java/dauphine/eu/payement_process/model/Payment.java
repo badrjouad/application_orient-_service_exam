@@ -17,6 +17,11 @@ public class Payment {
     private Long orderId;
     private Double amount;
     private String paymentStatus;
+    private String cardNumber;
+    private String cardHolderName;
+    private String cardExpiryDate;
+    private String cardSecurityCode;
+    private String fraudStatus;
 
 
 }
